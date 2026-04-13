@@ -35,5 +35,6 @@ nav:
       - 横纵分析法（短版）: methods/horizontal-vertical-analysis-brief.md
   - Workflows:
       - Deep Research Workflow: workflows/deep-research.md
+      - 在 Hermes 里保留飞书能力：lark-cli wrapper: workflows/feishu-user-cli-wrapper.md
   - Notes:
       - 为什么 Skill 比 Prompt 更值钱: notes/why-skills-beat-prompts.md
