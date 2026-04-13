@@ -1,0 +1,39 @@
+site_name: Fugui Research Lab
+site_description: A personal research lab for methods, workflows, and durable thinking.
+site_url: https://imartinw29.github.io/Fugui-research-lab/
+repo_url: https://github.com/imartinw29/Fugui-research-lab
+repo_name: imartinw29/Fugui-research-lab
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: white
+      accent: indigo
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - About: about.md
+  - Methods:
+      - 横纵分析法（完整版）: methods/horizontal-vertical-analysis.md
+      - 横纵分析法（短版）: methods/horizontal-vertical-analysis-brief.md
+  - Workflows:
+      - Deep Research Workflow: workflows/deep-research.md
+  - Notes:
+      - 为什么 Skill 比 Prompt 更值钱: notes/why-skills-beat-prompts.md
