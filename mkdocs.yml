@@ -34,5 +34,6 @@ nav:
 - Workflows:
   - Deep Research Workflow: workflows/deep-research.md
   - 在 Hermes 里保留飞书能力：lark-cli wrapper: workflows/feishu-user-cli-wrapper.md
+  - 东财金融数据工具 (dfcf-finance-tool): workflows/dfcf-finance-tool/index.md
 - Notes:
   - 为什么 Skill 比 Prompt 更值钱: notes/why-skills-beat-prompts.md
