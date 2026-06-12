@@ -17,6 +17,24 @@
 
 ## 你会在这里看到什么
 
+### 富贵竹 · Lucky Bamboo
+A股投资策略技能组。从数据到决策的完整链条：
+
+- **四灯信号系统** — BOLL+KDJ+MACD 买入判定
+- **筹码峰第五维** — 持仓成本 + 获利比例辅助验证
+- **仓位管理** — 凯利公式 + 头寸公式 + 止损规则
+- **12只回测标的** — 从风华高科(+189%)到卓胜微(+14%)的策略边界
+
+详见 → [lucky-bamboo/](https://github.com/imartinw29/Fugui-research-lab/tree/main/lucky-bamboo)
+
+### 富贵财经包 · Fugui Finance Package
+数据引擎与估值工具：
+
+- **dfcf_finance** — 东方财富API，10场景覆盖（行情/选股/财报/筹码峰）
+- **spring-river-warm** — 春江水暖估值引擎，个股估值 + 同行对照
+
+详见 → [fugui-finance-package/](https://github.com/imartinw29/Fugui-research-lab/tree/main/fugui-finance-package)
+
 ### Methods
 研究方法与分析框架。
 

@@ -27,6 +27,12 @@ markdown_extensions:
 nav:
 - Home: index.md
 - About: about.md
+- 富贵竹: 
+  - 策略总览: https://github.com/imartinw29/Fugui-research-lab/blob/main/lucky-bamboo/SKILL.md
+  - 投资框架: https://github.com/imartinw29/Fugui-research-lab/blob/main/lucky-bamboo/references/investment-framework.md
+- 富贵财经包:
+  - 东财数据引擎: workflows/dfcf-finance-tool/index.md
+  - 春江水暖估值: https://github.com/imartinw29/Fugui-research-lab/blob/main/fugui-finance-package/spring-river-warm/spring_river_warm.py
 - Methods:
   - 横纵分析法（完整版）: methods/horizontal-vertical-analysis.md
   - 横纵分析法（短版）: methods/horizontal-vertical-analysis-brief.md
