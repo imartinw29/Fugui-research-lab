@@ -297,14 +297,18 @@ def fetch_chip(code: str) -> dict | None:
                 val = v[0] if isinstance(v, list) and len(v) > 0 else v
                 try:
                     chip[k] = float(re.sub(r'[%元,]', '', str(val)))
-                except:
+                except (ValueError, TypeError):
                     pass
-        return {
+        result = {
             'avg_cost': chip.get('010000_CMPJCB'),
             'profit_pct': chip.get('010000_HLP'),
             'conc_70': chip.get('010000_CMFB_461_JZD70'),
             'conc_90': chip.get('010000_CMFB_461_JZD90'),
         }
+        # 数据为空时打 stderr
+        if result['avg_cost'] is None and result['profit_pct'] is None:
+            print(f"  ⚠️ 筹码数据解析为空 (query成功但无有效字段)", file=sys.stderr)
+        return result
     except Exception as e:
         print(f"  ⚠️ 筹码数据获取失败: {e}", file=sys.stderr)
         return None
@@ -345,6 +349,10 @@ def fetch_peg(code: str) -> dict | None:
         if pe and growth is not None:
             peg = pe / growth if growth > 0 else None
             return {'pe': pe, 'growth': growth, 'peg': peg}
+        if pe is None:
+            print(f"  ⚠️ PEG: PE(TTM)数据缺失", file=sys.stderr)
+        elif growth is None:
+            print(f"  ⚠️ PEG: 净利增速数据缺失", file=sys.stderr)
         return None
     except Exception as e:
         print(f"  ⚠️ PEG数据获取失败: {e}", file=sys.stderr)
@@ -496,7 +504,9 @@ def scan(secid: str):
     print(f"  ① 收盘≤中轨 ({today['close']:.2f}≤{mid:.2f})  {'✅' if c1 else '❌'}")
     print(f"  ② K<30        ({k:.1f}<30)        {'✅' if c2 else '❌'}")
     print(f"  ③ J<20        ({j:.1f}<20)        {'✅' if c3 else '❌'}")
-    print(f"  ④ MACD绿柱收窄 ({macd_bar:.3f}>{macd_prev:.3f})  {'✅' if c4 else '❌'}")
+    # ④: MACD 绿柱收窄 (仅绿柱适用, 红柱不适用)
+    hint = " (红柱不适用)" if macd_bar >= 0 else ""
+    print(f"  ④ MACD绿柱收窄 ({macd_bar:.3f}>{macd_prev:.3f})  {'✅' if c4 else '❌'}{hint}")
     print(f"  {'─'*50}")
 
     if passed == 4:
