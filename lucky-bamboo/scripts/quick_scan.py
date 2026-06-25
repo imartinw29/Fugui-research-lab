@@ -88,6 +88,11 @@ def _try_fetch_miaoxiang(secid: str) -> tuple | None:
                      '326339': 'high', '326386': 'low',
                      '326699': 'turnover'}
 
+        # 防御: 次新股/边缘票可能返回 f-code 快照而非 3xxxxx 时间序列
+        actual_keys = set(k for k in tbl if k != 'headName')
+        if not (actual_keys & set(FIELD_MAP.keys())):
+            return None  # 格式不符, 降级 push2his
+
         # 清洗: 去后缀 → float/str, 翻转为时间升序
         records = []
         for i in range(len(head)):

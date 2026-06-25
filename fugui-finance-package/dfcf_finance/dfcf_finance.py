@@ -82,8 +82,8 @@ class DFCFFinance:
         raw = self._call(self.ENDPOINTS[Scene.DATA], {"toolQuery": query})
         if "error" in raw:
             return self._resp(False, None, raw["error"])
-        inner = raw.get("data", {})
-        status = inner.get("status", inner.get("code", -1))
+        inner = raw.get("data") or {}
+        status = inner.get("status", inner.get("code", -1)) if inner else -1
         if status != 0:
             return self._resp(False, raw, inner.get("message", "查询失败"))
         return self._resp(True, raw, "查询成功")
@@ -92,8 +92,8 @@ class DFCFFinance:
         raw = self._call(self.ENDPOINTS[Scene.NEWS], {"query": query})
         if "error" in raw:
             return self._resp(False, None, raw["error"])
-        inner = raw.get("data", {})
-        status = inner.get("status", inner.get("code", -1))
+        inner = raw.get("data") or {}
+        status = inner.get("status", inner.get("code", -1)) if inner else -1
         if status != 0:
             return self._resp(False, raw, inner.get("message", "搜索失败"))
         return self._resp(True, raw, "搜索成功")
