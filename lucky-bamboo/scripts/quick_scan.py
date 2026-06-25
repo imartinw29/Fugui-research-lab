@@ -1,30 +1,21 @@
 #!/usr/bin/env python3
-"""lucky-bamboo quick scan v2.6: 四灯 + 筹码峰 + 股东户数 + 换手率(市值分档) + PEG + 量价背离
+"""lucky-bamboo quick scan v2.7: 四灯 + 筹码峰 + 股东户数 + 换手率(市值分档) + PEG + 量价背离
 
 Usage: python quick_scan.py <secid>  (e.g. 1.688008 for 澜起科技)
        secid = market(1=SH, 0=SZ) + '.' + code
 
-═══ 数据源架构（v2.6 妙想主力 + push2his 降级） ═══
+═══ 数据源架构（v2.7 妙想主力 · 三重降级） ═══
 
-                     妙想 (主数据源 · 5次调用 · 100%稳定)     push2his (加速层 · 1次调用 · 间歇宕机)
-                     ──────────────────────────────────     ──────────────────────────────────
-调用1(五合一套餐):     开盘+收盘+最高+最低+换手率 × 78天        ← 等价替代
-调用2(流通市值):       流通市值序列                              ← 等价替代
-调用3-5(基本面):       筹码峰 + 股东户数 + PEG                  ← push2his 无此数据
-                     ──────────────────────────────────     ──────────────────────────────────
-                     每只股票 5次妙想调用 = 100% 稳定           push2his 挂了也能出完整四灯+全维度
+  妙想五合一套餐 (1次调用 · 主流标的)
+    ↓ 格式不符 (f-code 边缘票)
+  妙想分拆查询 (收盘+换手, close±2%估算 KDJ · v2.7新增)
+    ↓ 分拆也失败
+  push2his (1次调用 · 最终降级)
 
-妙想字段码 (跨股票通用):
-  326269=开盘  325898=收盘  326339=最高  326386=最低  326699=换手率
-  headName=日期 (格式 2026-06-24(日), 需清洗)
-  值带后缀: '元' → 去后缀转float, '%' → 去后缀转float
-
-妙想不可用 (无 MX_APIKEY): 降级到 push2his → 四灯+换手率可用, 基本面层静默跳过.
-push2his 宕机时:          妙想主力不受影响 ⬆
-
-v2.6 改进:
-- 🔥 妙想五合一套餐 → OHLC + 换手率, 一次调用, push2his 降级为可选加速
-- 妙想不可用时自动降级 push2his, 双保险
+v2.7 改进:
+- 分拆查询降级: 五合一套餐失败时, 单独拉收盘+换手时间序列
+- close±2% 估算高/低价 (KDJ 精度降级, BOLL/MACD/换手完整)
+- 边缘票 (次新股/火炬电子等) 不再直接跳到 push2his
 """
 
 import json, math, os, re, ssl, sys, urllib.request
@@ -37,8 +28,11 @@ _dfcf_path_added = False
 def _ensure_dfcf_path():
     global _dfcf_path_added
     if not _dfcf_path_added:
-        sys.path.insert(0, os.path.expanduser(
-            '~/Fugui-research-lab/fugui-finance-package/dfcf_finance'))
+        # repo-relative: ../../fugui-finance-package/dfcf_finance from scripts/
+        _repo_root = os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))))
+        sys.path.insert(0, os.path.join(
+            _repo_root, 'fugui-finance-package', 'dfcf_finance'))
         _dfcf_path_added = True
 
 
@@ -91,7 +85,8 @@ def _try_fetch_miaoxiang(secid: str) -> tuple | None:
         # 防御: 次新股/边缘票可能返回 f-code 快照而非 3xxxxx 时间序列
         actual_keys = set(k for k in tbl if k != 'headName')
         if not (actual_keys & set(FIELD_MAP.keys())):
-            return None  # 格式不符, 降级 push2his
+            # 五合一套餐格式不符 → 分拆单独查询 (v2.7 fallback)
+            return _try_fetch_miaoxiang_split(secid, start, end)
 
         # 清洗: 去后缀 → float/str, 翻转为时间升序
         records = []
@@ -141,6 +136,106 @@ def _try_fetch_miaoxiang(secid: str) -> tuple | None:
 
     except Exception as e:
         print(f"  ⚠️ 妙想五合一套餐失败, 降级 push2his: {e}", file=sys.stderr)
+        return None
+
+
+def _try_fetch_miaoxiang_split(secid: str, start: date, end: date) -> tuple | None:
+    """五合一套餐格式不符时的分拆降级 (v2.7)
+
+    边缘票 (次新股/冷门股) 的五合一返回 f-code 快照而非标准 3xxxxx 时间序列.
+    分拆为单独查询: 收盘+换手可拉时间序列, 最高/最低/开盘仅单点快照不可用.
+    → 用 close±2% 估算高/低价 (KDJ 精度降级), open=close.
+
+    返回格式与主函数一致, 失败返回 None → push2his 最终降级.
+    """
+    code = secid.split('.')[-1]
+    date_range = f'{start.strftime("%Y-%m-%d")}至{end.strftime("%Y-%m-%d")}'
+
+    try:
+        # ── 收盘价 (已验证可返回标准 325898 时间序列) ──
+        tables = _dfcf_data(f'{code} 收盘价 {date_range}')
+        if not tables:
+            return None
+        tbl = tables[0].get('table', {})
+        head = tbl.get('headName', [])
+        if not head or len(head) < 25:
+            return None
+        # 找标准字段码 (325898) 或任意非空字段
+        close_key = None
+        for k in tbl:
+            if k == 'headName':
+                continue
+            if k == '325898' or (isinstance(tbl[k], list) and len(tbl[k]) >= 25):
+                close_key = k
+                break
+        if not close_key:
+            return None
+
+        closes_raw = tbl[close_key]
+        n = len(closes_raw)
+
+        # ── 换手率 (可能返回 100000000006291 等变体字段码) ──
+        turnovers_raw = None
+        try:
+            tables_t = _dfcf_data(f'{code} 换手率 {date_range}')
+            if tables_t:
+                tbl_t = tables_t[0].get('table', {})
+                for k in tbl_t:
+                    if k != 'headName' and isinstance(tbl_t[k], list) and len(tbl_t[k]) >= 20:
+                        turnovers_raw = tbl_t[k]
+                        break
+        except Exception:
+            pass
+
+        # ── 流通市值 ──
+        cap = None
+        try:
+            tables_c = _dfcf_data(f'{code} 流通市值')
+            if tables_c:
+                tbl_c = tables_c[0].get('table', {})
+                for k, v in tbl_c.items():
+                    if k == 'headName':
+                        continue
+                    if isinstance(v, list) and len(v) > 0 and '亿' in str(v[0]):
+                        cap = float(str(v[0]).replace('亿元', '').replace('亿', '').replace(',', ''))
+                        break
+        except Exception:
+            pass
+
+        # ── 组装数据: 收盘价 + close±2%估算高/低 + open=close ──
+        records = []
+        for i in range(n):
+            d = head[i].replace('(日)', '') if isinstance(head[i], str) else str(head[i])
+            close_val = float(str(closes_raw[i]).replace('元', '').replace(',', ''))
+            # KDJ 估算: 高/低价用收盘价 ±2% (与 fallback_scan.py 一致)
+            est_high = close_val * 1.02
+            est_low = close_val * 0.98
+            turnover_val = None
+            if turnovers_raw and i < len(turnovers_raw):
+                try:
+                    turnover_val = float(str(turnovers_raw[i]).replace('%', '').replace(',', ''))
+                except (ValueError, TypeError):
+                    pass
+            records.append({
+                'date': d,
+                'open': close_val,   # 开盘价用收盘价替代
+                'close': close_val,
+                'high': est_high,
+                'low': est_low,
+                'turnover': turnover_val,
+                'cap': None,
+            })
+
+        records.reverse()  # 妙想最新在前 → 时间升序
+
+        if cap is not None:
+            records[-1]['cap'] = cap
+
+        print(f"  ⚠️ 五合一套餐格式不符, 分拆查询 (close±2% 估算 KDJ)", file=sys.stderr)
+        return code, records
+
+    except Exception as e:
+        print(f"  ⚠️ 分拆查询失败: {e}", file=sys.stderr)
         return None
 
 

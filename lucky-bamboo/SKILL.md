@@ -161,11 +161,12 @@ python scripts/tail_market_scanner.py --top 20 --debug
 
 🔴 **CHECKPOINT · 股票状态时效：** 上表状态基于最后一次数据刷新。实盘决策前必须重新拉取行情数据（dfcf-finance-tool），确认信号未失效。MACD死叉/金叉可能在刷新后变化。
 
-## 详细档案（OpenClaw Workspace）
+## 详细档案（本机 OpenClaw Workspace · ⚠️ 路径仅本机有效）
 
 每只股票的深度研究材料（财报PDF、估值分析、观察笔记）存放在福宝的 workspace：
 
 ```
+⚠️ 以下路径仅 imartinw29 本机有效，不可跨环境使用
 ~/.openclaw/workspace/projects/investment/
 ├── 688525-佰维存储/    ← 14个年报季报 PDF
 ├── 300433-蓝思科技/    ← 估值分析

@@ -117,13 +117,16 @@ def main():
     code = sys.argv[1]
     name = sys.argv[2] if len(sys.argv) > 2 else code
 
-    # dfcf_finance lives in Fugui-research-lab, not on default PYTHONPATH
-    sys.path.insert(0, os.path.expanduser('~/Fugui-research-lab/fugui-finance-package/dfcf_finance'))
+    # dfcf_finance lives in sibling dir of this repo, not on default PYTHONPATH
+    _repo_root = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))
+    sys.path.insert(0, os.path.join(
+        _repo_root, 'fugui-finance-package', 'dfcf_finance'))
     try:
         from dfcf_finance import DFCFFinance
     except ModuleNotFoundError:
-        print("Error: dfcf_finance module not found. Set MX_APIKEY in ~/.hermes/.env", file=sys.stderr)
-        print("and ensure ~/Fugui-research-lab/fugui-finance-package/dfcf_finance/ exists.", file=sys.stderr)
+        print("Error: dfcf_finance module not found.", file=sys.stderr)
+        print("Ensure fugui-finance-package/dfcf_finance/ sits next to lucky-bamboo/ in the repo.", file=sys.stderr)
         sys.exit(2)
 
     tool = DFCFFinance()
