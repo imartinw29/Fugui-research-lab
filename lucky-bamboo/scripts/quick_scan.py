@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
-"""lucky-bamboo quick scan v2.7: 四灯 + 筹码峰 + 股东户数 + 换手率(市值分档) + PEG + 量价背离
+"""lucky-bamboo quick scan v2.8: 四灯 + 筹码峰 + MACD八形态 + 股东户数 + 换手率(市值分档) + PEG + 量价背离
 
 Usage: python quick_scan.py <secid>  (e.g. 1.688008 for 澜起科技)
        secid = market(1=SH, 0=SZ) + '.' + code
 
-═══ 数据源架构（v2.7 妙想主力 · 三重降级） ═══
-
-  妙想五合一套餐 (1次调用 · 主流标的)
-    ↓ 格式不符 (f-code 边缘票)
-  妙想分拆查询 (收盘+换手, close±2%估算 KDJ · v2.7新增)
-    ↓ 分拆也失败
-  push2his (1次调用 · 最终降级)
-
-v2.7 改进:
-- 分拆查询降级: 五合一套餐失败时, 单独拉收盘+换手时间序列
-- close±2% 估算高/低价 (KDJ 精度降级, BOLL/MACD/换手完整)
-- 边缘票 (次新股/火炬电子等) 不再直接跳到 push2his
+v2.8 新增：MACD八形态自动检测
+  零轴下二次金叉(小鸭出水/海底捞月) · 零轴上回踩不破(空中缆车/漫步青云)
+  佛手向上 · 天鹅展翅 · 空中缆绳 · 海底电缆
+  与四灯互补——四灯找买入时机，形态判断趋势结构。
 """
 
 import json, math, os, re, ssl, sys, urllib.request
@@ -318,7 +310,7 @@ def calc_kdj(data, period=14, warmup_bars=20):
     return k, d, 3 * k - 2 * d
 
 
-def calc_macd(closes, fast=12, slow=26, signal=9):
+def calc_macd(closes, fast=12, slow=26, signal=9, return_full=False):
     ema_f = closes[0]; ema_s = closes[0]
     dif_vals = []
     for c in closes:
@@ -331,7 +323,101 @@ def calc_macd(closes, fast=12, slow=26, signal=9):
         dea = d * 2 / (signal + 1) + dea * (1 - 2 / (signal + 1))
         dea_vals.append(dea)
     macd_vals = [2 * (d - de) for d, de in zip(dif_vals, dea_vals)]
+    if return_full:
+        return dif_vals, dea_vals, macd_vals
     return dif_vals[-1], dea_vals[-1], macd_vals[-1], macd_vals[-2]
+
+
+def detect_macd_patterns(dif, dea, bars):
+    """Detect MACD 8-pattern framework (v2.8). Returns list of matched pattern names."""
+    patterns = []
+    n = len(dif)
+    if n < 40:
+        return patterns
+
+    # ── 零轴下二次金叉：小鸭出水 / 海底捞月 ──
+    gc_below, dc_below = [], []
+    for i in range(1, n):
+        if dif[i] < 0 and dea[i] < 0:
+            if dif[i-1] <= dea[i-1] and dif[i] > dea[i]:
+                gc_below.append(i)
+            elif dif[i-1] >= dea[i-1] and dif[i] < dea[i]:
+                dc_below.append(i)
+    if len(gc_below) >= 2:
+        last_gc = gc_below[-1]
+        if last_gc >= n - 15:
+            recent_bars = bars[last_gc:]
+            if any(b > 0 for b in recent_bars[-3:]):
+                patterns.append('小鸭出水(零轴下二次金叉)')
+            elif dc_below and gc_below[-2] < dc_below[-1]:
+                patterns.append('海底捞月(零轴下二次金叉)')
+
+    # ── 零轴上回踩不破：空中缆车 / 漫步青云 ──
+    for i in range(10, n):
+        if dif[i] > 0 and dea[i] > 0:
+            if dif[i-1] >= dea[i-1] and dif[i] < dea[i]:
+                min_dif_after = min(dif[i:])
+                if min_dif_after > 0:
+                    for j in range(i+1, n):
+                        if dif[j-1] <= dea[j-1] and dif[j] > dea[j]:
+                            if j >= n - 10:
+                                patterns.append('空中缆车(零轴上回踩不破)')
+                            break
+                    else:
+                        if dif[-1] > dea[-1] * 0.8:
+                            patterns.append('漫步青云(零轴上回踩不破)')
+                break
+
+    # ── 佛手向上：零轴上金叉→回调未死叉→抬头 ──
+    for i in range(5, n-3):
+        if dif[i] > 0 and dea[i] > 0:
+            if dif[i-1] <= dea[i-1] and dif[i] > dea[i]:
+                recent_dif = dif[-5:]
+                recent_dea = dea[-5:]
+                if all(d > e for d, e in zip(recent_dif, recent_dea)):
+                    min_ratio = min(d/e for d, e in zip(recent_dif, recent_dea))
+                    if min_ratio < 1.05 and bars[-1] > bars[-3]:
+                        patterns.append('佛手向上(零轴上金叉回调不破)')
+                break
+            break
+
+    # ── 天鹅展翅：零轴下金叉→回调未死叉→抬头 ──
+    for i in range(5, n-3):
+        if dif[i] < 0 and dea[i] < 0:
+            if dif[i-1] <= dea[i-1] and dif[i] > dea[i]:
+                recent_dif = dif[-5:]
+                recent_dea = dea[-5:]
+                if all(d > e for d, e in zip(recent_dif, recent_dea)):
+                    min_ratio = min(d/e for d, e in zip(recent_dif, recent_dea))
+                    if min_ratio < 1.08 and bars[-1] > bars[-3]:
+                        patterns.append('天鹅展翅(零轴下金叉回调不破)')
+                break
+            break
+
+    # ── 空中缆绳：零轴下金叉→上穿零轴→粘合→再抬头 ──
+    for i in range(5, n-10):
+        if dif[i] < 0 and dif[i-1] <= dea[i-1] and dif[i] > dea[i]:
+            for j in range(i+5, n-5):
+                if dif[j] > 0 and dea[j] > 0:
+                    sticky = False
+                    for k in range(j, n-3):
+                        gap = abs(dif[k] - dea[k]) / max(abs(dea[k]), 0.01)
+                        if gap < 0.15:
+                            sticky = True
+                    if sticky and dif[-1] > dea[-1] and bars[-1] > bars[-2]:
+                        patterns.append('空中缆绳(穿零轴粘合再抬头)')
+                    break
+            break
+
+    # ── 海底电缆：零轴下长期粘合→金叉 ──
+    recent20_dif = dif[-20:]
+    recent20_dea = dea[-20:]
+    if all(d < 0 for d in recent20_dif):
+        max_gap = max(abs(d - e) / max(abs(e), 0.01) for d, e in zip(recent20_dif, recent20_dea))
+        if max_gap < 0.2 and dif[-1] > dea[-1]:
+            patterns.append('海底电缆(零轴下粘合金叉)')
+
+    return patterns
 
 
 # ── 妙想基本面查询 ────────────────────────────────────────────
@@ -483,7 +569,9 @@ def scan(secid: str):
 
     upper, mid, lower = calc_boll(closes)
     k, d, j = calc_kdj(data)
-    dif, dea, macd_bar, macd_prev = calc_macd(closes)
+    dif_arr, dea_arr, macd_arr = calc_macd(closes, return_full=True)
+    dif, dea, macd_bar = dif_arr[-1], dea_arr[-1], macd_arr[-1]
+    macd_prev = macd_arr[-2] if len(macd_arr) >= 2 else macd_bar
 
     bb_pos = (today["close"] - lower) / (upper - lower) * 100 if upper != lower else 50
 
@@ -515,6 +603,12 @@ def scan(secid: str):
     print(f"  BOLL(20,2): 上={upper:.2f} 中={mid:.2f} 下={lower:.2f}  位置:{bb_pos:.0f}%")
     print(f"  KDJ(14,3):  K={k:.1f}  D={d:.1f}  J={j:.1f}")
     print(f"  MACD(12,26,9): DIF={dif:.2f} DEA={dea:.2f} 柱={macd_bar:.3f}  {'金叉' if dif>dea else '死叉'}")
+
+    macd_patterns = detect_macd_patterns(dif_arr, dea_arr, macd_arr)
+    if macd_patterns:
+        print(f"  {'─'*50}")
+        for pat in macd_patterns:
+            print(f"  🔍 MACD形态: {pat}")
 
     if chip and chip['avg_cost']:
         print(f"  {'─'*50}")
