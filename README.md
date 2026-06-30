@@ -1,75 +1,77 @@
-# 投研技能系统
+# Fugui Research Lab
 
-> 一套模块化的A股投研工具集。覆盖数据获取、技术回测、估值分析、研报生成。
-> 
-> Skill 描述流程，不描述验证结果。代码从配置加载参数，不硬编码标的。观察日志记录方法论规律，不记录具体数据。
+> An AI-assisted equity research framework for A-share markets — valuation, quantitative backtesting, and automated report generation.
 
-## 快速开始
+## What it does
+
+Fugui Research Lab combines Eastern Fortune (东方财富) market data APIs with structured analytical pipelines to produce institutional-grade equity research. It supports the full workflow: data ingestion → sector analysis → peer comparison → valuation modeling → report generation.
+
+## Quick start
 
 ```bash
 git clone git@github.com:imartinw29/Fugui-research-lab.git
 cd Fugui-research-lab
 
-# 1. 复制并填写配置
-cp config.example.yaml config.yaml
-
-# 2. 创建私人目录（不被Git跟踪）
+# Configure
+cp config.example.yaml config.yaml      # Add API credentials
 mkdir -p private/
 cp private/watchlist.example.yaml private/watchlist.yaml
-# 编辑 private/watchlist.yaml，填入自选标的
-# 编辑 config.yaml，填入 API Key
 
-# 3. 安装依赖
+# Install and run
 pip install -r requirements.txt
-
-# 4. 运行回测
 python lucky-bamboo/scripts/backtest_bb_kdj_macd.py
 ```
 
-## 目录结构
+## Architecture
 
 ```
-├── SKILL.md                 # 能力总览
-├── prompt/                  # 各场景系统提示词
-│   ├── valuation.md         # 估值分析框架
-│   ├── report.md            # 深度研报框架
-│   └── backtest.md          # 技术回测框架
-├── templates/               # 报告模板
-│   ├── report_template.md
-│   └── valuation_template.md
-├── examples/                # 脱敏示例（使用中性股票代码演示）
-├── observations/            # 方法论层面的规律记录
-├── experiments/             # 策略实验与版本管理
-├── docs/                    # 详细文档与方法论
-├── fugui-finance-package/   # 东方财富API数据引擎
-│   ├── dfcf_finance/        # 行情/财报/选股/筹码峰
-│   └── spring-river-warm/   # 估值引擎
-├── lucky-bamboo/            # 策略脚本
-│   ├── scripts/             # 回测/扫描/选股
-│   └── references/          # API文档与备忘
-├── config.example.yaml      # 配置模板
-└── private/                 # 请自行创建（Git忽略）
+├── prompt/                  # System prompts for each analytical scenario
+│   ├── valuation.md         # Valuation analysis framework
+│   ├── report.md            # Deep research report framework
+│   └── backtest.md          # Technical backtest framework
+├── templates/               # Reusable report templates
+├── examples/                # Sanitized demos (neutral tickers)
+├── fugui-finance-package/   # Eastern Fortune API data engine
+│   ├── dfcf_finance/        # Quotes, financials, screening, chip distribution
+│   └── spring-river-warm/   # Valuation engine
+├── lucky-bamboo/            # Strategy scripts
+│   ├── scripts/             # Backtesting, scanning, signal generation
+│   └── references/          # API documentation and notes
+├── docs/                    # Methodology and workflow documentation
+├── observations/            # Methodology-level pattern records
+├── experiments/             # Strategy experiments and versioning
+├── config.example.yaml      # Configuration template
+└── private/                 # User-managed (gitignored)
 ```
 
-## 设计原则
+## Capabilities
 
-| 层 | 位置 | 包含内容 | 是否上传 |
-|----|------|---------|---------|
-| **Skill** | SKILL.md / prompt/ | 通用流程与方法 | ✅ |
-| **Code** | scripts/ / fugui-finance-package/ / lucky-bamboo/ | 可执行代码 | ✅ |
-| **Template** | templates/ | 报告模板 | ✅ |
-| **Example** | examples/ | 脱敏示例（中性代码） | ✅ |
-| **Observation** | observations/ | 方法论规律（不含具体标的） | ✅ |
-| **Experiment** | experiments/ | 策略实验记录与版本 | ✅ |
-| **Config** | config.example.yaml | 配置模板 | ✅ |
-| **Private** | private/ | 自选池、持仓、回测记录、密钥 | ❌ |
-| **Reports** | research/ | 个人研报 | ❌ |
+| Capability | Trigger | Description |
+|-----------|---------|-------------|
+| Data | `data()` | Real-time quotes, financials, screening, chip distribution |
+| Sector Analysis | sector-overview | Market size, competitive landscape, valuation context |
+| Peer Comparison | comps-analysis | Operating metrics + valuation multiples + statistical distribution |
+| Report Generation | research-report | Pipeline: sector → comps → report |
+| Technical Backtest | technical-backtest | Bollinger/KDJ/MACD multi-signal with performance attribution |
+| Deep Research | deep-research | Horizontal-vertical analysis: history + competitors + synthesis |
 
-- Skill仅包含流程描述，确保skill本身与股票代码隔离。
-- 代码通过 `load_watchlist()` 从配置文件读取标的，不硬编码股票代码。
-- 观察日志记录方法论规律，不记录具体回测结果。
-- 个人自选池、持仓数据、API密钥请放入 `private/` 目录，该目录已在 `.gitignore` 中排除。
+## Design principles
 
-## 扩展
+- Skill definitions describe workflows, not personal trading history.
+- Source code loads tickers from configuration files — zero hardcoded symbols.
+- Observation logs record methodological patterns, not specific backtest results.
+- Personal watchlists, holdings, and API keys belong in `private/` (gitignored).
 
-本项目可作为 Hermes Agent 的技能集使用。将 `prompt/` 目录下的文件导入对应技能的提示词配置即可。
+## Roadmap
+
+- [x] Multi-factor backtesting (Bollinger + KDJ + MACD)
+- [x] Automated deep research reports
+- [x] Sector overview and peer comparison pipelines
+- [x] Darwinian prompt/parameter evolution
+- [ ] Factor attribution analysis
+- [ ] Portfolio optimization (Kelly criterion)
+- [ ] Interactive visualization dashboard
+
+## License
+
+MIT
