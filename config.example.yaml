@@ -1,0 +1,21 @@
+# 投研系统配置示例
+# 复制为 config.yaml 并填入真实信息，config.yaml 已加入 .gitignore
+
+api:
+  eastmoney:
+    token: YOUR_TOKEN_HERE
+
+watchlist:
+  - 000001  # 示例：平安银行
+  - 000002  # 示例：万科A
+
+backtest:
+  default_params:
+    bb_period: 20
+    kdj_period: [14, 3, 3]
+    macd_period: [12, 26, 9]
+  
+kelly:
+  win_rate: 0.55
+  avg_win: 0.15
+  avg_loss: 0.08
