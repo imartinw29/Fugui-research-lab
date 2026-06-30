@@ -1,53 +1,79 @@
 # Fugui Research Lab
 
-个人投研实验室——方法、工具、工作流、深度研报，全部在这里。
+> An AI-assisted equity research framework for A-share markets — valuation, quantitative backtesting, and automated report generation.
 
-## 目录结构
+> 我们不是为了寻找每天都能交易的机会，而是为了持续理解少数值得长期跟踪的公司，并在风险收益比最优的时候采取行动。
 
-```
-Fugui-research-lab/
-├── fugui-finance-package/     ← 数据引擎 + 估值引擎
-│   ├── dfcf_finance/          ← 东方财富API（行情/选股/财报/筹码峰/诊断）
-│   └── spring-river-warm/     ← 春江水暖估值引擎
-├── lucky-bamboo/              ← 策略技能组
-│   ├── scripts/               ← 四灯扫描 v2.9 / quick_scan / fallback_scan
-│   ├── references/            ← 投资框架 / 仓位管理 / 筹码峰
-│   └── observation-log/       ← 观察日志
-├── research/                  ← 🔒 深度研报（私有）
-├── course-dev/                ← 🔒 课件开发（私有）
-├── docs/                      ← 文档
-│   ├── SKILLS-INDEX.md        ← 技能总索引（11 个投研技能 + 联动地图）
-│   ├── workflows/             ← 各技能工作流说明
-│   ├── methods/               ← 方法论
-│   └── notes/                 ← 研究笔记
-└── site/                      ← MkDocs 站点（待发布）
-```
+## What it does
 
-## 分工
+Fugui Research Lab combines Eastern Fortune (东方财富) market data APIs with structured analytical pipelines to produce institutional-grade equity research. It supports the full workflow: data ingestion → sector analysis → peer comparison → valuation modeling → report generation.
 
-| 模块 | 管什么 | 一句话 |
-|------|--------|--------|
-| `fugui-finance-package` | "有什么" | 数据获取、估值计算、技术指标 |
-| `lucky-bamboo` | "怎么办" | 买卖信号、四灯判定、双参KDJ接力 |
-| `research/` | "怎么看" | 叙事/护城河/估值/基本面/技术面五维分析 |
-| `course-dev/` | "怎么教" | 一看二拆三封，框架性思维课件 |
-| `docs/` | "怎么找" | 技能索引、联动地图、工作流文档 |
-
-## 技能总览
-
-[SKILLS-INDEX.md](docs/SKILLS-INDEX.md) — 11 个投研技能完整索引，含触发词、输入输出、联动地图。
-
-核心技能管道：数据获取 → 行业分析 → 可比估值 → 研报生成 → PPT 组装。
-
-## MKins 预览
+## Quick start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+git clone git@github.com:imartinw29/Fugui-research-lab.git
+cd Fugui-research-lab
+
+# Configure
+cp config.example.yaml config.yaml      # Add API credentials
+mkdir -p private/
+cp private/watchlist.example.yaml private/watchlist.yaml
+
+# Install and run
 pip install -r requirements.txt
-mkdocs serve
+python lucky-bamboo/scripts/backtest_bb_kdj_macd.py
 ```
 
-## 部署
+## Architecture
 
-GitHub Pages（GitHub Actions 自动构建）
+```
+├── prompt/                  # System prompts for each analytical scenario
+│   ├── valuation.md         # Valuation analysis framework
+│   ├── report.md            # Deep research report framework
+│   └── backtest.md          # Technical backtest framework
+├── templates/               # Reusable report templates
+├── examples/                # Sanitized demos (neutral tickers)
+├── fugui-finance-package/   # Eastern Fortune API data engine
+│   ├── dfcf_finance/        # Quotes, financials, screening, chip distribution
+│   └── spring-river-warm/   # Valuation engine
+├── lucky-bamboo/            # Strategy scripts
+│   ├── scripts/             # Backtesting, scanning, signal generation
+│   └── references/          # API documentation and notes
+├── docs/                    # Methodology and workflow documentation
+├── observations/            # Methodology-level pattern records
+├── experiments/             # Strategy experiments and versioning
+├── config.example.yaml      # Configuration template
+└── private/                 # User-managed (gitignored)
+```
+
+## Capabilities
+
+| Capability | Trigger | Description |
+|-----------|---------|-------------|
+| Data | `data()` | Real-time quotes, financials, screening, chip distribution |
+| Sector Analysis | sector-overview | Market size, competitive landscape, valuation context |
+| Peer Comparison | comps-analysis | Operating metrics + valuation multiples + statistical distribution |
+| Report Generation | research-report | Pipeline: sector → comps → report |
+| Technical Backtest | technical-backtest | Bollinger/KDJ/MACD multi-signal with performance attribution |
+| Deep Research | deep-research | Horizontal-vertical analysis: history + competitors + synthesis |
+
+## Design principles
+
+- Skill definitions describe workflows, not personal trading history.
+- Source code loads tickers from configuration files — zero hardcoded symbols.
+- Observation logs record methodological patterns, not specific backtest results.
+- Personal watchlists, holdings, and API keys belong in `private/` (gitignored).
+
+## Roadmap
+
+- [x] Multi-factor backtesting (Bollinger + KDJ + MACD)
+- [x] Automated deep research reports
+- [x] Sector overview and peer comparison pipelines
+- [x] Darwinian prompt/parameter evolution
+- [ ] Factor attribution analysis
+- [ ] Portfolio optimization (Kelly criterion)
+- [ ] Interactive visualization dashboard
+
+## License
+
+MIT
