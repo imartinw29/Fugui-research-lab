@@ -3,6 +3,13 @@ site/
 __pycache__/
 *.pyc
 
-# 私有内容（不公开）
+# 私有内容
 course-dev/
 research/
+lucky-bamboo/observation-log/
+lucky-bamboo/_private/
+
+# 个人配置文件
+**/watchlist*
+**/.env
+**/credentials*
