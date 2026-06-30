@@ -127,7 +127,7 @@ regime = RuleEngine.classify_regime(
 东方财富 `f162` 的"动态PE" = 市值 / (最新单季净利 × 4)。**周期股利润暴增/暴跌时严重失真：**
 
 ```python
-# 佰维存储示例
+# 平安银行示例
 ni = [28.99, 8.53, 0.3041, -2.258, -1.975]  # Q1→Q1上年
 ttm_ni = ni[0] + ni[1] - ni[4]  # = 39.5亿
 ttm_pe = mcap / ttm_ni            # = 36.7x

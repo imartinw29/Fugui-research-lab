@@ -5,8 +5,8 @@
 对照 v2.0 买入条件输出判定。
 
 用法:
-  python screen_buy_signal.py 688008          # 澜起科技
-  python screen_buy_signal.py 688525 002475   # 多票批量
+  python screen_buy_signal.py 000001          # 平安银行
+  python screen_buy_signal.py 000001 000002   # 多票批量
   python screen_buy_signal.py --pool          # 跑已回测池全量
 
 输出: 每票一行，含四条件判定 + 总分 + 关键指标
@@ -19,12 +19,6 @@ KDJ_N = 14
 MACD_FAST, MACD_SLOW, MACD_SIG = 12, 26, 9
 
 POOL = {
-    "688525": "佰维存储",
-    "688008": "澜起科技",
-    "301308": "江波龙",
-    "000636": "风华高科",
-    "300285": "国瓷材料",
-    "002131": "利欧股份",
 }
 
 
@@ -156,13 +150,13 @@ def main():
                 codes.append(a)
 
     if not codes:
-        print("用法: python screen_buy_signal.py 688008 [688525 ...] [--pool]")
+        print("用法: python screen_buy_signal.py 000001 [000002 ...] [--pool]")
         sys.exit(1)
 
     print(f"{'标的':<16} {'日期':<12} {'收盘':>8}  BOLL%  {'K':>5} {'J':>5}  MACD  四条件  判定")
     print("-" * 90)
     for code in codes:
-        market = 1 if code.startswith("688") else 0
+        market = 1 if code.startswith("6") else 0
         check(code, market)
 
 

@@ -21,8 +21,8 @@ OOP + 自动路由 + 白盒 prompt。10 个场景一个类搞定。
 ## 自动路由
 
 ```python
-tool.route("佰维存储最新股价")        # → data()
-tool.route("佰维存储诊断")            # → stock_diagnosis()
+tool.route("平安银行最新股价")        # → data()
+tool.route("平安银行诊断")            # → stock_diagnosis()
 tool.route("半导体行业分析")          # → industry_analysis()
 ```
 

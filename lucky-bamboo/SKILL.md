@@ -151,7 +151,7 @@ MACD:   (12, 26, 9)
 ### 网络坑
 - WSL `requests` 库连 `push2his` 会 `RemoteDisconnected`，`urllib.request` 直连HTTPS可通
 - Python urllib TLS问题：需 `ssl._create_unverified_context()`
-- 诊断：`curl -s --max-time 5 "https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.688008&..."`
+- 诊断：`curl -s --max-time 5 "https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.000002&..."`
 
 ### 降级链
 

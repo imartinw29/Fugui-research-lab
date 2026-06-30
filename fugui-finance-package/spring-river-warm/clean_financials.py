@@ -4,7 +4,7 @@
 
 用法：
     from clean_financials import normalize_dfcf, compute_derived
-    raw = dfcf_tool.data("688525 佰维存储 营收 净利润...")
+    raw = dfcf_tool.data("000001 平安银行 营收 净利润...")
     fin = normalize_dfcf(raw)
     fin = compute_derived(fin)  # 附加衍生指标
 """

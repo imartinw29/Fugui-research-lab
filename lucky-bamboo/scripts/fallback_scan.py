@@ -5,8 +5,8 @@ Trigger: push2his.eastmoney.com is unreachable (WSL RemoteDisconnected).
 Fallback: dfcf妙想 data() → daily close prices → manual indicator calculation.
 
 Usage:
-  python fallback_scan.py 688525 佰维存储
-  python fallback_scan.py 688008 澜起科技
+  python fallback_scan.py 000001 平安银行
+  python fallback_scan.py 000002 万科A
 
 Requires: DFCF finance tool (MX_APIKEY in env), numpy.
 """
@@ -147,7 +147,7 @@ def main():
         for k, v in tbl.items():
             if k == "headName":
                 continue
-            # Skip HKD tables (A+H dual-listed stocks like 688008/澜起)
+            # Skip HKD tables (A+H dual-listed stocks like 000002/澜起)
             if isinstance(v, list) and v and ('港元' in str(v[0])):
                 continue
             close_raw = v

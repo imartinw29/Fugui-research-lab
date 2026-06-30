@@ -7,9 +7,6 @@ ctx.verify_mode = ssl.CERT_NONE
 
 # ========== 配置区 ==========
 STOCKS = [
-    ("688008", "sh688008", "澜起科技"),
-]
-
 # 策略参数
 BB_PERIOD, BB_STD = 20, 2
 KDJ_PERIOD, KDJ_K_SMOOTH, KDJ_D_SMOOTH = 14, 3, 3
