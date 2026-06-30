@@ -55,8 +55,8 @@ from dfcf_finance import DFCFFinance
 
 ```bash
 cd ~/.hermes/skills/finance/lucky-bamboo/scripts
-python fallback_scan.py 688525 佰维存储
-python fallback_scan.py 688008 澜起科技
+python fallback_scan.py 000001 平安银行
+python fallback_scan.py 000002 格力电器
 ```
 
 `fallback_scan.py` 完成：取 dfcf data() 收盘价 → numpy 计算 BOLL/KDJ/MACD → 输出四灯状态。

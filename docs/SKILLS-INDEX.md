@@ -35,7 +35,7 @@
 - **触发词**：出一份研报/写个行业深度/分析XX股票
 - **管道**：sector-overview → comps-analysis → PPT
 - **输出**：Markdown + Excel + PPT（标准 8-12 页）
-- **今天刚跑的案例**：蓝思科技 + 深科技 双深度研报
+- **今天刚跑的案例**：格力电器 + 深科技 双深度研报
 
 ### 5. a-share-technical-backtest — 技术指标回测引擎
 
@@ -111,8 +111,6 @@
 │   ├── scripts/                    # quick_scan v2.9, fallback_scan
 │   ├── references/                 # 参考数据
 │   └── observation-log/            # 观察日志
-├── research/                       # 🔒 研报输出（私有）
-├── course-dev/                     # 🔒 课件开发（私有）
 ├── docs/                           # 文档（当前文件所在位置）
 │   ├── SKILLS-INDEX.md             # 本文件
 │   ├── workflows/                  # 各技能的工作流说明
@@ -133,7 +131,7 @@ python3 -c "
 import sys; sys.path.insert(0, 'fugui-finance-package')
 from dfcf_finance.dfcf_finance import DFCFFinance
 d = DFCFFinance()
-print(d.data('688008'))
+print(d.data('000002'))
 "
 
 # 查 KDJ
@@ -141,7 +139,7 @@ python3 -c "
 import sys; sys.path.insert(0, 'fugui-finance-package')
 from dfcf_finance.dfcf_finance import DFCFFinance
 d = DFCFFinance()
-print(d.kdj('688008', n=14, m1=3, m2=3))
+print(d.kdj('000002', n=14, m1=3, m2=3))
 "
 ```
 

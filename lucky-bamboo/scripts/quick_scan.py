@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """lucky-bamboo quick scan v2.8: 四灯 + 筹码峰 + MACD八形态 + 股东户数 + 换手率(市值分档) + PEG + 量价背离
 
-Usage: python quick_scan.py <secid>  (e.g. 1.688008 for 澜起科技)
+Usage: python quick_scan.py <secid>  (e.g. 1.000001 for 平安银行)
        secid = market(1=SH, 0=SZ) + '.' + code
 
 v2.8 新增：MACD八形态自动检测
@@ -722,7 +722,7 @@ def scan(secid: str):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python quick_scan.py <secid>  (e.g. 1.688008)")
+        print("Usage: python quick_scan.py <secid>  (e.g. 1.000001)")
         sys.exit(1)
     try:
         scan(sys.argv[1])

@@ -70,10 +70,10 @@ tool = DFCFFinance()  # 读取 MX_APIKEY 环境变量
 # 或：tool = DFCFFinance(api_key="your_key")
 
 # 自动路由
-result = tool.route("佰维存储最新股价")
+result = tool.route("平安银行最新股价")
 
 # 直接指定场景
-result = tool.data("佰维存储最新股价")
+result = tool.data("平安银行最新股价")
 result = tool.news("存储芯片板块新闻")
 result = tool.screen("市盈率小于30的科技股")
 result = tool.watchlist_get()
@@ -174,8 +174,8 @@ tool = DFCFFinance(api_key=env_vars['MX_APIKEY'])
 
 | Query | table key | 数据形态 |
 |-------|-----------|---------|
-| `"688525 涨跌幅"` | `f3` | 实时单值 `["0.09%"]` |
-| `"688525 最新价 涨跌幅 年初至今涨幅"` | `100000000006290` | 时间序列数组 + `headName` 日期 |
+| `"000001 涨跌幅"` | `f3` | 实时单值 `["0.09%"]` |
+| `"000001 最新价 涨跌幅 年初至今涨幅"` | `100000000006290` | 时间序列数组 + `headName` 日期 |
 
 触发时间序列的关键词：`年初至今`、`历史`、`走势`。时间序列可用于计算 YTD、近1月、近1周等复利收益。
 
@@ -195,7 +195,7 @@ tool = DFCFFinance(api_key=env_vars['MX_APIKEY'])
 
 ## data() 对可比公司的静默返回
 
-对目标公司（如利欧股份 002131）查询正常返回多 table，但相同 query 格式对其他公司可能返回
+对目标公司（如五粮液 000858）查询正常返回多 table，但相同 query 格式对其他公司可能返回
 `dataTableDTOList: []`（`success: true` 但无数据）。不是 API 挂了——是东方财富 query 解析对非热门标的弱匹配。
 
 ```python

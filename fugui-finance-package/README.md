@@ -1,4 +1,4 @@
-# Fugui Finance Package 🥜
+# 代码包 — 详见根目录 SKILL.md
 
 王富贵的 A 股投资分析工具箱。**脚本能做的不用 skill，skill 能做的不用 LLM。**
 

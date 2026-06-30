@@ -495,14 +495,14 @@ class DFCFFinance:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("用法: python dfcf_finance.py <自然语言查询>")
-        print("数据层: python dfcf_finance.py 佰维存储最新股价")
+        print("数据层: python dfcf_finance.py 平安银行最新股价")
         print("         python dfcf_finance.py 存储芯片新闻")
         print("         python dfcf_finance.py 市盈率小于30的科技股")
-        print("分析层: python dfcf_finance.py 佰维存储诊断")
+        print("分析层: python dfcf_finance.py 平安银行诊断")
         print("         python dfcf_finance.py 宁德时代财报解读")
         print("         python dfcf_finance.py 半导体行业分析")
         print("         python dfcf_finance.py 人工智能宏观研究")
-        print("         python dfcf_finance.py 澜起科技深度分析")
+        print("         python dfcf_finance.py 格力电器深度分析")
         sys.exit(1)
 
     query = " ".join(sys.argv[1:])

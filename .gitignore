@@ -3,6 +3,15 @@ site/
 __pycache__/
 *.pyc
 
-# 私有内容（不公开）
-course-dev/
+# 私人数据 — 永不上传
+private/
 research/
+course-dev/
+data/
+reports/
+
+# 个人配置
+config.yaml
+**/watchlist*
+**/.env
+**/credentials*

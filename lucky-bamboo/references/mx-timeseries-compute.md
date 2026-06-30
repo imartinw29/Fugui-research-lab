@@ -4,7 +4,7 @@
 
 ## 工作原理
 
-1. 用妙想 `data()` 拉取收盘价时间序列（query 格式：`"688525 佰维 收盘价 YYYY-MM-DD至YYYY-MM-DD"`）
+1. 用妙想 `data()` 拉取收盘价时间序列（query 格式：`"000001 佰维 收盘价 YYYY-MM-DD至YYYY-MM-DD"`）
 2. numpy 自算 BOLL(20,2) + MACD(12,26,9)
 3. **KDJ 不可算**（需要高/低价，妙想收盘价查询不含此数据）
 
@@ -40,7 +40,7 @@ sys.path.insert(0, '~/Fugui-research-lab/fugui-finance-package/dfcf_finance')
 from dfcf_finance import DFCFFinance
 
 tool = DFCFFinance()
-r = tool.data('688525 佰维 收盘价 2026-04-01至2026-06-10')
+r = tool.data('000001 佰维 收盘价 2026-04-01至2026-06-10')
 
 tables = r['data']['data']['data']['searchDataResultDTO']['dataTableDTOList']
 tbl = tables[0]['table']
