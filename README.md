@@ -65,9 +65,9 @@ python lucky-bamboo/scripts/backtest_bb_kdj_macd.py
 | **Private** | private/ | 自选池、持仓、回测记录、密钥 | ❌ |
 | **Reports** | research/ | 个人研报 | ❌ |
 
-- Skill 层只描述"怎么做"，不描述"我做过什么"。
+- Skill仅包含流程描述，确保skill本身与股票代码隔离。
 - 代码通过 `load_watchlist()` 从配置文件读取标的，不硬编码股票代码。
-- 观察日志记录方法论规律（如"某市值区间在当前环境下表现最优"），不记录具体回测结果。
+- 观察日志记录方法论规律，不记录具体回测结果。
 - 个人自选池、持仓数据、API密钥请放入 `private/` 目录，该目录已在 `.gitignore` 中排除。
 
 ## 扩展
