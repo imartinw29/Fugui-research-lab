@@ -111,11 +111,8 @@
 │   ├── scripts/                    # quick_scan v2.9, fallback_scan
 │   ├── references/                 # 参考数据
 │   └── observation-log/            # 观察日志
-├── research/                       # 研报输出
-│   ├── 蓝思科技_深度研报_20260630.md
-│   └── 深科技_深度研报_20260630.md
-├── course-dev/                     # 课件开发
-│   └── templates/                  # 浙商银行模板逆向产物
+├── research/                       # 🔒 研报输出（私有）
+├── course-dev/                     # 🔒 课件开发（私有）
 ├── docs/                           # 文档（当前文件所在位置）
 │   ├── SKILLS-INDEX.md             # 本文件
 │   ├── workflows/                  # 各技能的工作流说明

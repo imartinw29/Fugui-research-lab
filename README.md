@@ -13,11 +13,8 @@ Fugui-research-lab/
 │   ├── scripts/               ← 四灯扫描 v2.9 / quick_scan / fallback_scan
 │   ├── references/            ← 投资框架 / 仓位管理 / 筹码峰
 │   └── observation-log/       ← 观察日志
-├── research/                  ← 深度研报输出
-│   ├── 蓝思科技_深度研报_20260630.md
-│   └── 深科技_深度研报_20260630.md
-├── course-dev/                ← 课件开发
-│   └── templates/             ← 浙商银行模板（4核心版式/配色/字体/图标）
+├── research/                  ← 🔒 深度研报（私有）
+├── course-dev/                ← 🔒 课件开发（私有）
 ├── docs/                      ← 文档
 │   ├── SKILLS-INDEX.md        ← 技能总索引（11 个投研技能 + 联动地图）
 │   ├── workflows/             ← 各技能工作流说明
