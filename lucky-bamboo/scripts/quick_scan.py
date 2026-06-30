@@ -279,8 +279,10 @@ def calc_boll(closes, period=20, sigma=2):
     return ma + sigma * std, ma, ma - sigma * std
 
 
-def calc_kdj(data, period=14, warmup_bars=20):
-    """KDJ · 前 warmup_bars 根暖初始值"""
+def calc_kdj(data, period=14, m1=3, m2=3, warmup_bars=20):
+    """KDJ · 前 warmup_bars 根暖初始值 · m1=K平滑 m2=D平滑 (default 3,3)"""
+    alpha_k = 1.0 / m1
+    alpha_d = 1.0 / m2
     if len(data) <= warmup_bars + period:
         k_prev = d_prev = 50.0
         start = period
@@ -291,8 +293,8 @@ def calc_kdj(data, period=14, warmup_bars=20):
             ll = min(d["low"] for d in window)
             hh = max(d["high"] for d in window)
             rsv = (data[i]["close"] - ll) / (hh - ll) * 100 if hh != ll else 50
-            k_run = 2 / 3 * k_run + 1 / 3 * rsv
-            d_run = 2 / 3 * d_run + 1 / 3 * k_run
+            k_run = (1 - alpha_k) * k_run + alpha_k * rsv
+            d_run = (1 - alpha_d) * d_run + alpha_d * k_run
         k_prev, d_prev = k_run, d_run
         start = warmup_bars
 
@@ -302,8 +304,8 @@ def calc_kdj(data, period=14, warmup_bars=20):
         ll = min(d["low"] for d in window)
         hh = max(d["high"] for d in window)
         rsv = (data[i]["close"] - ll) / (hh - ll) * 100 if hh != ll else 50
-        k_new = 2 / 3 * k_prev + 1 / 3 * rsv
-        d_new = 2 / 3 * d_prev + 1 / 3 * k_new
+        k_new = (1 - alpha_k) * k_prev + alpha_k * rsv
+        d_new = (1 - alpha_d) * d_prev + alpha_d * k_new
         k_vals.append(k_new); d_vals.append(d_new)
         k_prev, d_prev = k_new, d_new
     k, d = k_vals[-1], d_vals[-1]
@@ -568,7 +570,8 @@ def scan(secid: str):
     today = data[-1]
 
     upper, mid, lower = calc_boll(closes)
-    k, d, j = calc_kdj(data)
+    k, d, j = calc_kdj(data)             # 14,3,3 — 前哨: 灵敏度高, 拐点快
+    k2, d2, j2 = calc_kdj(data, m1=5, m2=5)  # 14,5,5 — 指挥官: 平滑度高, 假信号少
     dif_arr, dea_arr, macd_arr = calc_macd(closes, return_full=True)
     dif, dea, macd_bar = dif_arr[-1], dea_arr[-1], macd_arr[-1]
     macd_prev = macd_arr[-2] if len(macd_arr) >= 2 else macd_bar
@@ -601,7 +604,7 @@ def scan(secid: str):
     print(f"  {name}  {secid}  |  {today['date']}  收盘: {today['close']:.2f}{stale_tag}{cap_str}")
     print(f"{'='*60}")
     print(f"  BOLL(20,2): 上={upper:.2f} 中={mid:.2f} 下={lower:.2f}  位置:{bb_pos:.0f}%")
-    print(f"  KDJ(14,3):  K={k:.1f}  D={d:.1f}  J={j:.1f}")
+    print(f"  KDJ(14,3,3): K={k:.1f}  D={d:.1f}  J={j:.1f}  │  KDJ(14,5,5): K={k2:.1f}  D={d2:.1f}  J={j2:.1f}")
     print(f"  MACD(12,26,9): DIF={dif:.2f} DEA={dea:.2f} 柱={macd_bar:.3f}  {'金叉' if dif>dea else '死叉'}")
 
     macd_patterns = detect_macd_patterns(dif_arr, dea_arr, macd_arr)
@@ -700,6 +703,12 @@ def scan(secid: str):
 
     if passed == 4:
         print(f"  🟢 四灯全亮！买入信号")
+        # 双参确认
+        kdj_confirmed = k2 < 30 and j2 < 20
+        if kdj_confirmed:
+            print(f"  🟢 KDJ 双参确认 —— 14,5,5 同步超卖, 非假信号概率高")
+        else:
+            print(f"  🟡 KDJ 前哨触发, 平滑未确认 —— 静观其变, 等 14,5,5 跟上或放弃")
         if chip and chip['avg_cost'] and today['close'] < chip['avg_cost']:
             print(f"  🟢 筹码低位确认 —— 双重共振")
         if sh and sh['change_pct'] < -5:
