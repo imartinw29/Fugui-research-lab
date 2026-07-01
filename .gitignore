@@ -15,3 +15,6 @@ config.yaml
 **/watchlist*
 **/.env
 **/credentials*
+
+# 本地待办，不公开
+WIP.md
